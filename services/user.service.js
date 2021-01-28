@@ -15,8 +15,11 @@ const Create = async (data) => {
   return user;
 };
 
-const FindOneAndUpdate = async (filter, data) => {
-  const user = await User.findOneAndUpdate(filter, { ...data });
+const FindOneAndUpdate = async (filter, data, options = {}) => {
+  const user = await User.findOneAndUpdate(filter, data, {
+    new: true,
+    ...options,
+  });
   return user;
 };
 
@@ -25,10 +28,17 @@ const DeleteOne = async (filter) => {
   return user;
 };
 
+const FindOneAndPopulate = async (query, populate_field) => {
+  const user = await User.findOne(query).populate(populate_field);
+  const organizations = user.organizations;
+  return organizations;
+};
+
 module.exports = {
   Find,
   FindOne,
   Create,
   FindOneAndUpdate,
+  FindOneAndPopulate,
   DeleteOne,
 };

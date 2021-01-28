@@ -1,6 +1,21 @@
 const Organization = require("../models/organization.model");
-const organizationService = require("../services/organization.service");
 const OrganizationService = require("../services/organization.service");
+
+const GetAdminsByOrganization = async (req, res) => {
+  const { organization_id } = req.params;
+  try {
+    const admins = await OrganizationService.FindOneAndPopulate(
+      { _id: organization_id },
+      "admins"
+    );
+    return res.status(200).json({
+      message: "OK",
+      data: admins,
+    });
+  } catch (error) {
+    console.log("error: ", error);
+  }
+};
 
 const GetAllOrganizations = async (req, res) => {
   try {
@@ -16,7 +31,7 @@ const GetAllOrganizations = async (req, res) => {
 
 const AddOrganization = async (req, res) => {
   try {
-    const { name, description, country, city, picture } = req.body;
+    const { name, description, country, city, picture, admins } = req.body;
 
     const existing_organization = await OrganizationService.FindOne({
       name,
@@ -34,6 +49,7 @@ const AddOrganization = async (req, res) => {
       country,
       city,
       picture,
+      admins,
     });
 
     return res.status(200).json({
@@ -46,11 +62,11 @@ const AddOrganization = async (req, res) => {
 
 const UpdateOrganization = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, description, country, city, picture } = req.body;
+    const { organization_id } = req.params;
+    const { name, description, country, city, picture, admins } = req.body;
 
     const organization = await OrganizationService.FindOne({
-      _id: id,
+      _id: organization_id,
     });
 
     if (!organization) {
@@ -60,8 +76,8 @@ const UpdateOrganization = async (req, res) => {
     }
 
     const updatedData = await OrganizationService.FindOneAndUpdate(
-      { _id: id },
-      { name, description, country, city, picture }
+      { _id: organization_id },
+      { name, description, country, city, picture, admins }
     );
 
     return res.status(200).json({
@@ -75,8 +91,8 @@ const UpdateOrganization = async (req, res) => {
 
 const DeleteOrganization = async (req, res) => {
   try {
-    const { id } = req.params;
-    await OrganizationService.DeleteOne({ _id: id });
+    const { organization_id } = req.params;
+    await OrganizationService.DeleteOne({ _id: organization_id });
     return res.status(200).json({
       message: "Data deleted.",
     });
@@ -97,6 +113,7 @@ const DeleteOrganization = async (req, res) => {
 // };
 
 module.exports = {
+  GetAdminsByOrganization,
   GetAllOrganizations,
   AddOrganization,
   UpdateOrganization,
